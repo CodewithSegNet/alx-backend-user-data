@@ -32,8 +32,7 @@ def view_one_user(user_id: str = None) -> str:
         else:
             """ return the authenticated user as Json"""
             return jsonify(request.current_user.to_json())
-        
-        
+
     """ return the user from the database """
     user = User.get(user_id)
     if user is None:
