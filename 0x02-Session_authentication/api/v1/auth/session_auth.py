@@ -38,6 +38,28 @@ class SessionAuth(Auth):
 
         return self.user_id_by_session_id.get(session_id, None)
 
+    def current_user(self, request=None):
+        """ Return a User instance based on a cookie value.
+
+        Args:
+            request: The Flask request object.
+
+        Returns:
+            User: The User instance associated with the cookie _my_session
+        """
+        if request is None:
+            return None
+
+        session_id = self.session_cookie(request)
+        if session_id is None:
+            return None
+
+        user_id = self.user_id_for_session_id(session_id)
+        if user_id is None:
+            return None
+
+        return User.ger(user_id)
+
 
 if __name__ == '__main__':
     session_auth = SessionAuth()
