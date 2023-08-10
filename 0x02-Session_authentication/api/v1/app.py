@@ -5,7 +5,6 @@ import os
 from os import getenv
 from flask import Flask, jsonify, abort, request
 from flask_cors import (CORS, cross_origin)
-
 from api.v1.views import app_views
 from api.v1.auth.auth import Auth
 from api.v1.auth.basic_auth import BasicAuth
@@ -53,19 +52,38 @@ def authenticate_user():
     """Authenticates a user before processing a request.
     """
     if auth:
+        """ list of paths that are excluded from authentication
+        """
         excluded_paths = [
             '/api/v1/status/',
             '/api/v1/unauthorized/',
             '/api/v1/forbidden/',
             '/api/v1/auth_session/login/'
         ]
+        """ Check if authentication is required for the current request
+        """
         if auth.require_auth(request.path, excluded_paths):
+            """ Get the authorization header from the request
+            """
             auth_header = auth.authorization_header(request)
+            """ Get the current user based on the authentication mechanism
+            """
             user = auth.current_user(request)
+            """ set the current_user attr in the request object
+            """
             request.current_user = user
+            """ check if both the authorization header and
+            session cookies are missing
+            """
             if auth_header is None and auth.session_cookie(request):
+                """ abort the request with a 401 Unauthorize status
+                """
                 abort(401)
+                """ check if the user is not found
+                """
             if user is None:
+                """ abort the request with a 403 forbidden status
+                """
                 abort(403)
 
 
